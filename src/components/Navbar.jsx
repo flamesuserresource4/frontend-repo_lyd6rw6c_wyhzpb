@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react'
-import { Plane, Menu, X, Crown } from 'lucide-react'
+import { motion, AnimatePresence } from 'framer-motion'
+import { Plane, Menu, X } from 'lucide-react'
 
 export default function Navbar() {
   const [open, setOpen] = useState(false)
@@ -11,58 +12,61 @@ export default function Navbar() {
     return () => window.removeEventListener('scroll', onScroll)
   }, [])
 
-  const linkClass =
-    'px-3 py-2 text-sm font-medium text-gray-700 hover:text-black hover:opacity-80 transition'
-
-  const scrollToId = (id) => {
-    const el = document.getElementById(id)
-    if (el) {
-      el.scrollIntoView({ behavior: 'smooth', block: 'start' })
-      setOpen(false)
-    }
-  }
+  const links = [
+    { href: '#home', label: 'Home' },
+    { href: '#explore', label: 'Explore' },
+    { href: '#operators', label: 'Operators' },
+    { href: '#contact', label: 'Contact' },
+  ]
 
   return (
-    <header className={`fixed top-0 left-0 right-0 z-50 transition ${
-      scrolled ? 'backdrop-blur-md bg-white/70 shadow-sm' : 'bg-transparent'
-    }`}>
-      <nav className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-        <div className="flex h-16 items-center justify-between">
-          <button
-            onClick={() => scrollToId('home')}
-            className="flex items-center gap-2"
-            aria-label="AetherJet Home"
-          >
-            <div className="relative">
-              <Crown className="h-6 w-6 text-black" />
-              <Plane className="absolute -right-3 -top-1 h-4 w-4 text-amber-500" />
-            </div>
-            <span className="text-lg font-semibold tracking-tight">AetherJet</span>
-          </button>
+    <div className={`sticky top-0 z-50 ${scrolled ? 'backdrop-blur-xl bg-black/40' : 'backdrop-blur-sm bg-black/20'} transition-colors` }>
+      <nav className="mx-auto max-w-7xl px-6">
+        <div className="flex h-16 items-center justify-between text-white">
+          <a href="#home" className="flex items-center gap-2">
+            <Plane className="h-5 w-5 text-emerald-300" />
+            <span className="font-semibold tracking-tight">AetherJet</span>
+          </a>
 
-          <div className="hidden md:flex items-center gap-1">
-            <button onClick={() => scrollToId('home')} className={linkClass}>Home</button>
-            <button onClick={() => scrollToId('operators')} className={linkClass}>For Operators</button>
-            <button onClick={() => scrollToId('about')} className={linkClass}>About Us</button>
-            <button onClick={() => scrollToId('contact')} className="ml-2 rounded-full bg-black text-white px-4 py-2 text-sm font-medium hover:bg-gray-900 transition">Contact Us</button>
+          <div className="hidden items-center gap-8 md:flex">
+            {links.map((l) => (
+              <a key={l.href} href={l.href} className="text-sm text-white/80 transition hover:text-white">
+                {l.label}
+              </a>
+            ))}
+            <a href="#explore" className="rounded-xl bg-white/10 px-4 py-2 text-sm backdrop-blur hover:bg-white/20">
+              Book now
+            </a>
           </div>
 
-          <button className="md:hidden" onClick={() => setOpen(!open)} aria-label="Toggle Menu">
+          <button className="md:hidden" onClick={() => setOpen((v) => !v)} aria-label="Toggle Menu">
             {open ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
           </button>
         </div>
       </nav>
 
-      {open && (
-        <div className="md:hidden border-t bg-white">
-          <div className="mx-auto max-w-7xl px-4 py-3 space-y-1">
-            <button onClick={() => scrollToId('home')} className="block w-full text-left px-2 py-2 text-gray-800">Home</button>
-            <button onClick={() => scrollToId('operators')} className="block w-full text-left px-2 py-2 text-gray-800">For Operators</button>
-            <button onClick={() => scrollToId('about')} className="block w-full text-left px-2 py-2 text-gray-800">About Us</button>
-            <button onClick={() => scrollToId('contact')} className="block w-full text-left px-2 py-2 text-gray-800">Contact Us</button>
-          </div>
-        </div>
-      )}
-    </header>
+      <AnimatePresence>
+        {open && (
+          <motion.div
+            initial={{ opacity: 0, y: -10 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -10 }}
+            transition={{ duration: 0.2 }}
+            className="md:hidden"
+          >
+            <div className="mx-4 mb-4 space-y-2 overflow-hidden rounded-2xl border border-white/10 bg-black/60 p-3 text-white backdrop-blur">
+              {links.map((l) => (
+                <a key={l.href} href={l.href} onClick={() => setOpen(false)} className="block rounded-lg px-3 py-2 text-white/80 hover:bg-white/10">
+                  {l.label}
+                </a>
+              ))}
+              <a href="#explore" onClick={() => setOpen(false)} className="block rounded-lg bg-white/10 px-3 py-2 text-center hover:bg-white/20">
+                Book now
+              </a>
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+    </div>
   )
 }
